@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFINITE | The Future of Knowledge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        void: '#020204',
+                        stellar: '#00f0ff',
+                        nebula: '#7000ff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        body {
+            background-color: #020204;
+            color: #ffffff;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Background Canvas */
+        #universe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Sticky Header */
+        header.sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            transition: all 0.8s var(--ease-cinematic);
+            background: transparent;
+        }
+
+        header.sticky-nav.scrolled {
+            background: rgba(2, 2, 4, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Glassmorphism Styles */
+        .glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.8s var(--ease-cinematic);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(0, 240, 255, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        /* Typography & Gradients */
+        .brand-glow {
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            background: linear-gradient(to right, #fff, #00f0ff, #7000ff, #fff);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textFlow 15s linear infinite;
+        }
+
+        @keyframes textFlow {
+            to { background-position: 300% center; }
+        }
+
+        .text-accent-gradient {
+            background: linear-gradient(135deg, #00f0ff, #7000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animations & Interactions */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s var(--ease-cinematic);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cosmic-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s var(--ease-cinematic);
+        }
+
+        .cosmic-button:active {
+            transform: scale(0.96);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.4) 0%, transparent 70%);
+            transform: scale(0);
+            animation: ripple-effect 1.2s var(--ease-cinematic) forwards;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-effect {
+            to { transform: scale(5); opacity: 0; }
+        }
+
+        /* Form Animation */
+        #ideas-form-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 1.2s var(--ease-cinematic), opacity 1s var(--ease-cinematic);
+            opacity: 0;
+        }
+
+        #ideas-form-section.open {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 3rem;
+        }
+
+        .input-glow:focus {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+            outline: none;
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+    </style>
+</head>
+<body class="antialiased">
+
+<canvas id="universe"></canvas>
+
+<!-- STICKY BRAND HEADER -->
+<header id="main-nav" class="sticky-nav py-8">
+    <div class="max-w-7xl mx-auto px-6 flex justify-center">
+        <h1 class="brand-glow font-display font-bold text-2xl tracking-[0.6em] uppercase">
+            INFINITE
+        </h1>
+    </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="min-h-screen flex flex-col justify-center items-center relative px-6 text-center">
+    <div class="max-w-4xl mx-auto reveal stagger-1 mt-20">
+        <div class="inline-block px-4 py-1.5 rounded-full border border-stellar/20 bg-stellar/5 mb-8">
+            <span class="text-[10px] font-bold tracking-[0.3em] uppercase text-stellar">The Future of Knowledge</span>
+        </div>
+
+        <h2 class="font-display text-5xl md:text-7xl font-medium leading-tight mb-8 tracking-tight">
+            Where Education Meets <br>
+            <span class="text-accent-gradient">Infinite Intelligence</span>
+        </h2>
+
+        <p class="text-white/50 text-lg md:text-xl font-light mb-12 max-w-2xl mx-auto leading-relaxed">
+            A unified ecosystem for students, teachers, and institutes.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <button onclick="handleInteraction(event, '#pillars')" class="cosmic-button px-12 py-5 bg-white text-black font-display font-bold text-xs tracking-[0.2em] uppercase hover:bg-stellar hover:text-black transition-all">
+                Explore the Vision
+            </button>
+            <button onclick="toggleForm(event)" class="cosmic-button px-12 py-5 glass text-white font-display font-bold text-xs tracking-[0.2em] uppercase hover:border-stellar transition-all">
+                Share Your Suggestions
+            </button>
+        </div>
+
+        <!-- FORM SECTION -->
+        <div id="ideas-form-section" class="max-w-2xl mx-auto text-left">
+            <div class="glass p-8 md:p-10 rounded-[2rem] space-y-6">
+                <h3 class="font-display text-xl text-stellar tracking-wide">Help us to Evolve</h3>
+                <p class="text-white/40 text-sm font-light">Share your suggestions on how to make education more approachable, creative, and enhanceable.</p>
+                
+                <form id="suggestionForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input name="name" type="text" placeholder="Name" class="glass input-glow w-full p-4 rounded-xl text-sm font-light bg-white/5 border-white/10" required>
+                        <input name="email" type="email" placeholder="Email Address" class="glass input-glow w-full p-4 rounded-xl text-sm font-light bg-white/5 border-white/10" required>
+                    </div>
+                    <div>
+                        <select name="role" class="glass input-glow w-full p-4 rounded-xl text-sm font-light bg-void/50 border-white/10 text-white/60" required>
+                            <option value="" disabled selected>Role</option>
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <textarea name="suggestions" placeholder="How can we improve? What should we introduce or remove?" rows="4" class="glass input-glow w-full p-4 rounded-xl text-sm font-light bg-white/5 border-white/10 resize-none" required></textarea>
+                    
+                    <!-- Error Message Display Area -->
+                    <div id="form-error" class="hidden text-red-400 text-xs font-medium tracking-widest uppercase text-center mt-2 animate-pulse">
+                        Please fill this information
+                    </div>
+
+                    <button type="submit" class="cosmic-button w-full py-4 bg-stellar/20 border border-stellar/30 text-stellar text-[10px] font-bold tracking-[0.3em] uppercase rounded-xl hover:bg-stellar/30 transition-all">
+                        Submit Suggestions
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-10 animate-bounce opacity-20">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 14l-7 7-7-7"></path></svg>
+    </div>
+</section>
+
+<!-- CORE PILLARS -->
+<section id="pillars" class="py-32 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass glass-card p-12 rounded-[2.5rem] reveal stagger-1">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-stellar/20 to-transparent flex items-center justify-center mb-8">
+                <svg class="w-6 h-6 text-stellar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"></path></svg>
+            </div>
+            <h3 class="font-display text-2xl mb-4">Students</h3>
+            <p class="text-white/40 font-light leading-relaxed">Personalized AI learning paths designed to unlock individual potential.</p>
+        </div>
+        <div class="glass glass-card p-12 rounded-[2.5rem] reveal stagger-2">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-nebula/20 to-transparent flex items-center justify-center mb-8">
+                <svg class="w-6 h-6 text-nebula" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            </div>
+            <h3 class="font-display text-2xl mb-4">Teachers</h3>
+            <p class="text-white/40 font-light leading-relaxed">Automation tools to eliminate administrative friction and focus on mentorship.</p>
+        </div>
+        <div class="glass glass-card p-12 rounded-[2.5rem] reveal stagger-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center mb-8">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <h3 class="font-display text-2xl mb-4">Institutes</h3>
+            <p class="text-white/40 font-light leading-relaxed">Unified intelligence for seamless institutional management and connectivity.</p>
+        </div>
+    </div>
+</section>
+
+<!-- VISION SECTION -->
+<section class="py-32 px-6">
+    <div class="max-w-4xl mx-auto text-center reveal">
+        <h2 class="font-display text-4xl md:text-5xl font-light mb-8">
+            Built for the <span class="text-accent-gradient">Education Ecosystem</span>
+        </h2>
+        <p class="text-white/50 text-lg md:text-xl font-light leading-relaxed">
+            Infinite is more than a platform; it is a digital sanctuary where curiosity meets capability, designed to bridge the gap between human intuition and artificial intelligence.
+        </p>
+    </div>
+</section>
+
+<!-- FOUNDER SECTION -->
+<section class="py-32 px-6">
+    <div class="max-w-4xl mx-auto reveal">
+        <div class="glass p-12 md:p-20 rounded-[3rem] text-center space-y-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-stellar/30 to-transparent"></div>
+            <h2 class="text-white/20 font-display text-xs tracking-[0.5em] uppercase mb-10">Built with Vision</h2>
+            <p class="text-white/80 text-xl md:text-2xl font-light italic leading-relaxed">
+                "Our goal isn't to replace the human element of teaching, but to empower it through intelligent simplicity. We believe every student deserves a personalized universe of knowledge."
+            </p>
+            <div class="pt-10 border-t border-white/5">
+                <h3 class="font-display text-xl tracking-wider mb-2">Founder — Ansh Soni</h3>
+                <p class="text-stellar text-[10px] tracking-[0.3em] uppercase opacity-70">Student-driven initiative</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- EXPANSION SECTION -->
+<section class="py-48 px-6 text-center relative">
+    <div class="max-w-4xl mx-auto reveal">
+        <div class="inline-block px-6 py-2 rounded-full glass border-stellar/20 mb-10">
+            <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-white animate-pulse">Expanding Soon</span>
+        </div>
+        <h2 class="font-display text-5xl md:text-8xl font-bold tracking-tighter mb-8">
+            Building the <br> <span class="text-accent-gradient">Infinite Universe.</span>
+        </h2>
+        <p class="text-white/40 text-lg md:text-xl font-light max-w-xl mx-auto">
+            One platform. More tools. Infinite intelligence.
+        </p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-20 border-t border-white/5 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+        <h1 class="font-display font-bold text-lg tracking-[0.5em] uppercase opacity-80">
+            INFINITE
+        </h1>
+        <p class="text-white/30 text-[10px] tracking-[0.4em] uppercase font-medium">
+            Learning has no limits
+        </p>
+        <div class="flex gap-8 opacity-40">
+            <div class="w-1 h-1 bg-white rounded-full"></div>
+            <div class="w-1 h-1 bg-white rounded-full"></div>
+            <div class="w-1 h-1 bg-white rounded-full"></div>
+        </div>
+    </div>
+</footer>
+
+<script>
+// --- Universe Canvas ---
+const canvas = document.getElementById('universe');
+const ctx = canvas.getContext('2d');
+let width, height, stars = [];
+
+function initCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    stars = [];
+    const count = (width * height) / 10000;
+    for (let i = 0; i < count; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 1.5,
+            speed: Math.random() * 0.2 + 0.05,
+            opacity: Math.random()
+        });
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, width, height);
+    stars.forEach(s => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        s.y -= s.speed;
+        if (s.y < -5) s.y = height + 5;
+    });
+    requestAnimationFrame(draw);
+}
+
+// --- Sticky Navigation ---
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+    } else {
+        nav.classList.remove('scrolled');
+    }
+});
+
+// --- Form Toggle ---
+function toggleForm(e) {
+    handleInteraction(e);
+    const section = document.getElementById('ideas-form-section');
+    section.classList.toggle('open');
+    if (section.classList.contains('open')) {
+        setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
+    }
+}
+
+// --- Google Sheets Integration with Suggestions Field ---
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button');
+    const errorMsg = document.getElementById('form-error');
+    const originalText = btn.innerText;
+    
+    // Custom Validation
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const role = form.role.value;
+    const suggestions = form.suggestions.value.trim();
+
+    if (!name || !email || !role || !suggestions) {
+        errorMsg.classList.remove('hidden');
+        return;
+    } else {
+        errorMsg.classList.add('hidden');
+    }
+
+    btn.innerText = "Transmitting...";
+    btn.disabled = true;
+
+    // Google Sheets Deployment URL
+    // Yahan apna Google Apps Script Web App URL paste karein
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxQ9W9hdGa29MceryUgSDsW0Wkd4ZvTEqC18iU67vrnkoA664Tim3aTk5j3zzPkr1E1AA/exec";
+
+    try {
+        if (WEB_APP_URL === "paste your link here") {
+            // Local simulation agar URL abhi tak nahi dala gaya
+            console.warn("URL missing. Simulating success for content: ", { name, email, role, suggestions });
+            setTimeout(() => {
+                showSuccess(btn, form, originalText);
+            }, 1500);
+        } else {
+            // Real Submission using FormData for Google Apps Script
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("role", role);
+            formData.append("suggestions", suggestions);
+
+            await fetch(WEB_APP_URL, {
+                method: "POST",
+                body: formData,
+                mode: "no-cors" // Google Apps Script require no-cors for redirection
+            });
+            
+            showSuccess(btn, form, originalText);
+        }
+    } catch (err) {
+        console.error("Submission failed:", err);
+        btn.innerText = "SYNC FAILED";
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }, 2000);
+    }
+}
+
+function showSuccess(btn, form, originalText) {
+    btn.innerText = "SUCCESSFULLY SYNCED";
+    btn.classList.add('bg-stellar/40');
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.remove('bg-stellar/40');
+        btn.disabled = false;
+        document.getElementById('ideas-form-section').classList.remove('open');
+        form.reset();
+    }, 2000);
+}
+
+// --- Intersection Observer for Reveals ---
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('active');
+    });
+}, { threshold: 0.1 });
+
+// --- Button Ripple & Smooth Scroll ---
+function handleInteraction(e, targetId) {
+    const btn = e.currentTarget;
+    
+    // Ripple Effect
+    const ripple = document.createElement('span');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 1.5;
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${e.clientX - rect.left - size/2}px`;
+    ripple.style.top = `${e.clientY - rect.top - size/2}px`;
+    ripple.className = 'ripple';
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 1200);
+
+    // Smooth scroll
+    if (targetId) {
+        setTimeout(() => {
+            const target = document.querySelector(targetId);
+            if(target) target.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+    }
+}
+
+// --- Initialize ---
+window.addEventListener('resize', initCanvas);
+window.onload = () => {
+    initCanvas();
+    draw();
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    setTimeout(() => {
+        document.querySelectorAll('section .reveal').forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('active');
+        });
+    }, 500);
+};
+</script>
+
+</body>
+</html>
